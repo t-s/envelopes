@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Envelopes</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #000000;
+            perspective: 1000px;
+        }
+        .scene {
+            width: 80vmin;
+            height: 80vmin;
+            position: relative;
+            transform-style: preserve-3d;
+        }
+        .sphere {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform-style: preserve-3d;
+            animation: spin 30s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: translateX(-50%) translateY(-50%) rotateY(0deg) rotateX(20deg); }
+            100% { transform: translateX(-50%) translateY(-50%) rotateY(360deg) rotateX(20deg); }
+        }
+        .envelope {
+            position: absolute;
+            width: 30px;
+            height: 20px;
+            background-color: #ffffff;
+            border: 1px solid #f0f0f0;
+            transform-style: preserve-3d;
+            backface-visibility: hidden;
+            overflow: hidden;
+        }
+        .envelope::before {  
+            content: '';
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            width: 6px;
+            height: 7px;
+            background-color: rgba(200, 200, 200, 0.8);
+        }
+        .envelope::after {  
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            background-color: rgba(200, 200, 200, 0.5);
+            transform: translateY(-5px) rotateX(45deg);
+        }
+    </style>
+</head>
+<body>
+    <div class="scene">
+        <div class="sphere" id="envelope-sphere"></div>
+    </div>
+
+    <script>
+        function createEnvelope(x, y, z) {
+            const envelope = document.createElement('div');
+            envelope.className = 'envelope';
+            const distance = Math.sqrt(x*x + y*y + z*z);
+            const scale = 1 - (distance / 120) * 0.5; 
+            envelope.style.transform = `translateX(${x}px) translateY(${y}px) translateZ(${z}px) rotateX(${Math.random()*360}deg) rotateY(${Math.random()*360}deg) scale(${scale})`;
+            
+            const brightness = Math.max(0.8, 1 - (distance / radius) * 0.2);
+            const colorValue = Math.round(255 * brightness);
+            envelope.style.backgroundColor = `rgb(${colorValue}, ${colorValue}, ${colorValue})`;
+            envelope.style.borderColor = `rgb(${Math.round(colorValue * 0.95)}, ${Math.round(colorValue * 0.95)}, ${Math.round(colorValue * 0.95)})`;
+            
+            const stampHue = Math.floor(Math.random() * 360);
+            envelope.style.setProperty('--stamp-color', `hsla(${stampHue}, 70%, 60%, 0.8)`);
+            
+            return envelope;
+        }
+
+        const sphere = document.getElementById("envelope-sphere");
+        const radius = 100;
+        const envelopesCount = 1000; 
+
+        for (let i = 0; i < envelopesCount; i++) {
+            const theta = Math.random() * Math.PI * 2; 
+            const phi = Math.acos((Math.random() * 2) - 1);
+            const x = radius * Math.sin(phi) * Math.cos(theta);
+            const y = radius * Math.sin(phi) * Math.sin(theta);
+            const z = radius * Math.cos(phi);
+            sphere.appendChild(createEnvelope(x, y, z));
+        }
+    </script>
+</body>
+</html>
